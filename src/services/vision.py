@@ -5,7 +5,7 @@ from src.params import PET_EMOTIONS_LABELS_MAP, PET_LABELS
 from src.services.img_process import process_img_for_prediction
 from PIL import Image
 
-
+PDT=0.1
 async def get_emotion_from_image(image: Image):
     processed_img = await process_img_for_prediction(image)
     prediction = await predict_img_emotion(processed_img)
@@ -19,9 +19,10 @@ async def predict_img_emotion(img: np.ndarray[float]):
 
 
 def infer_prediction(prediction: np.ndarray):
-    label_num = np.argmax(prediction)
-    print(label_num)
-    return PET_EMOTIONS_LABELS_MAP.get(label_num, 0)
+    labels_within_PDT_pythonic = np.where(prediction >= prediction.max() - PDT)[0]
+    print(labels_within_PDT_pythonic)
+    print(prediction)
+    return [PET_EMOTIONS_LABELS_MAP.get(label, 0) for label in labels_within_PDT_pythonic]
 
 
 async def predict_img_classification(image: Image):
